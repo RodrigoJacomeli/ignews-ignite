@@ -1,35 +1,37 @@
-import { render, screen } from "@testing-library/react";
-import { mocked } from 'ts-jest/utils';
-import { useSession } from 'next-auth/react'
-import { SignInButton } from ".";
+import { render, screen } from '@testing-library/react';
+import { createMock } from 'ts-jest-mock';
+import { useSession } from 'next-auth/react';
+import { SignInButton } from '.';
 
-jest.mock("next-auth/react")
+jest.mock('next-auth/react');
 
-describe("SignInButton component", () => {
-    it("Renders correnctly when user is not authenticated", () => {
-        const useSessionMocked = mocked(useSession);
+describe('SignInButton component', () => {
+  it('Renders correnctly when user is not authenticated', () => {
+    const useSessionMocked = createMock(useSession);
 
-        useSessionMocked.mockReturnValueOnce([null, false])
+    useSessionMocked.mockReturnValueOnce({
+      data: null,
+      status: 'unauthenticated',
+    });
 
-        render(
-            <SignInButton />
-        )
+    render(<SignInButton />);
 
-        expect(screen.getByText('Sign In with GitHub')).toBeInTheDocument()
-    })
+    expect(screen.getByText('Sign In with GitHub')).toBeInTheDocument();
+  });
 
-    it("Renders correnctly when user is authenticated", () => {
-        const useSessionMocked = mocked(useSession);
+  it('Renders correnctly when user is authenticated', () => {
+    const useSessionMocked = createMock(useSession);
 
-        useSessionMocked.mockReturnValueOnce([
-            { user: { name: 'John Doe', email: 'john.doe@example.com' }, expires: 'fake-expires' },
-            false
-        ])
+    useSessionMocked.mockReturnValueOnce({
+      data: {
+        user: { name: 'John Doe', email: 'john.doe@example.com' },
+        expires: 'fake-expires',
+      },
+      status: 'authenticated',
+    });
 
-        render(
-            <SignInButton />
-        )
+    render(<SignInButton />);
 
-        expect(screen.getByText('John Doe')).toBeInTheDocument()
-    })
-})
+    expect(screen.getByText('John Doe')).toBeInTheDocument();
+  });
+});
